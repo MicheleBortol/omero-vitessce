@@ -10,6 +10,7 @@ from .utils import get_attached_configs, create_config, attach_config
 from .utils import get_files_images
 from .utils import build_attachment_viewer_url, build_json_viewer_url
 from .utils import process_rois, make_cell_json
+from . import omero_vitessce_settings
 
 from omeroweb.settings import ADDITIONAL_APPS
 
@@ -97,8 +98,20 @@ def vitessce_json_config(request, url_config, **kwargs):
 def vitessce_open(request, conn=None, **kwargs):
     """Get the first .json attachement and generate a link for it
     This way the config files can be served as text
-    If no config files are present send to the panel html to ask to make one
+    If a dataset or an image is selected, and no config files are present
+    send to the panel html to ask to make one.
+    If neither an image or a dataset is selected,
+    then tell the user to go back to the webclient
     """
+
+    obj_type, obj_id = None, None
+    context = {"json_configs": dict(),
+               "obj_type": obj_type,
+               "obj_id": obj_id,
+               "server_url": omero_vitessce_settings.SERVER_ADDRESS[1:-1],
+               "form": None}
+
+    # Check if a dataset or an image is selected
     if request.GET.get("dataset") is not None:
         obj_type = "dataset"
         obj_id = int(request.GET.get("dataset"))
@@ -106,19 +119,18 @@ def vitessce_open(request, conn=None, **kwargs):
         obj_type = "image"
         obj_id = int(request.GET.get("image"))
 
-    _, config_urls = get_attached_configs(obj_type, obj_id, conn)
-
-    if len(config_urls) > 0:
-        return HttpResponseRedirect(config_urls[0])
-    else:
-        context = {"json_configs": dict(),
-                   "obj_type": obj_type, "obj_id": obj_id}
-    if OMERO_WEB_ZARR:
-        files, urls, img_files, img_urls, _ = get_files_images(
-                obj_type, obj_id, conn)
-        form = ConfigForm(file_names=files, file_urls=urls,
-                          img_names=img_files, img_urls=img_urls)
-        context["form"] = form
-    else:
-        context["form"] = None
+    # If an image or a dataset is selected,
+    # then check if a config file is available
+    # If not provide the form to build one if omero-web-zarr is available
+    if obj_type is not None and obj_id is not None:
+        _, config_urls = get_attached_configs(obj_type, obj_id, conn)
+        if len(config_urls) > 0:
+            return HttpResponseRedirect(config_urls[0])
+        else:
+            if OMERO_WEB_ZARR:
+                files, urls, img_files, img_urls, _ = get_files_images(
+                        obj_type, obj_id, conn)
+                form = ConfigForm(file_names=files, file_urls=urls,
+                                  img_names=img_files, img_urls=img_urls)
+                context["form"] = form
     return render(request, "omero_vitessce/vitessce_open_with.html", context)

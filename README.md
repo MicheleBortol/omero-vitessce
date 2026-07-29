@@ -28,7 +28,7 @@ Add `omero_vitessce` as a tab in the right-hand-side panel:
 
 Add `omero_vitessce` as an open-with option:
 
-    omero config append omero.web.open_with '["omero_vitessce", "open_vitessce", {"supported_objects": ["project", "dataset", "image"], "label": "Vitessce"}]'
+    omero config append omero.web.open_with '["omero_vitessce", "open_vitessce", {"supported_objects": ["dataset", "image"], "label": "Vitessce"}]'
 
 Add the omero web address (replace ´'"http://localhost:4080"'´ with your address):
 
@@ -39,9 +39,9 @@ Now restart OMERO.web as normal for the configuration above to take effect.
 After `omero web restart`, two warnings could be raised about missing the `anywidget`, and  `starlette` packages like the following:
 ```
 /opt/omero/web/venv3/lib/python3.12/site-packages/vitessce/__init__.py:37: UserWarning: Extra installs are necessary to use widgets: No module named 'anywidget'
-  warn(f'Extra installs are necessary to use widgets: {e}')
+warn(f'Extra installs are necessary to use widgets: {e}')
 /opt/omero/web/venv3/lib/python3.12/site-packages/vitessce/__init__.py:63: UserWarning: Extra installs are necessary to use exports: No module named 'starlette'
-  warn(f'Extra installs are necessary to use exports: {e}')
+warn(f'Extra installs are necessary to use exports: {e}')
 ```
 These two warnings can be safely ignored for omero-vitessce as the functionality from those two packages is not used.
 
