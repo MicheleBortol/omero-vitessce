@@ -218,9 +218,15 @@
 					};
 				</script>
 			{% else %}
-				<p style="font-size:medium%"> Autogenerating config files requires the 
-				<a  href=https://github.com/ome/omero-web-zarr target="_blank">omero-web-zarr</a>
-				plugin which seems not to be available. </p>
+				{% if obj_type %}
+					<p style="font-size:medium%"> Autogenerating config files requires the 
+					<a  href=https://github.com/ome/omero-web-zarr target="_blank">omero-web-zarr</a>
+					plugin which seems not to be available. </p>
+				{% else %}
+					<p> No image or dataset selected, please go back to the 
+					<a  href={{server_url}} target="_blank">webclient</a>
+					and select an image or dataset to view with OMERO.vitessce. </p>
+				{% endif %}
 			{% endif %}
 	</div>
 {% endblock %}
